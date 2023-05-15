@@ -5,18 +5,26 @@ import { faArrowDown, faArrowUp, faPlay, faStop, faArrowsRotate } from '@fortawe
 
 type BreakProps = {
   _break: number;
-  setBreak: (_break: number) => void;
+  setBreak: React.Dispatch<React.SetStateAction<number>>;
+  isActive: boolean;
 }
 
-function Break({_break, setBreak}: BreakProps) {
+function Break({_break, setBreak, isActive}: BreakProps) {
+  const increment = () => {
+    setBreak(prev => prev + 1)
+  }
+  const decrement = () => {
+    setBreak(prev => prev - 1)
+  }
+
   return (
     <div id="break">
       <label id="break-label" htmlFor="break">Break Length</label>
-      <button id="break-decrement" type="button">
+      <button id="break-decrement" onClick={decrement}>
         <FontAwesomeIcon icon={faArrowDown} />
       </button>
       <div id="break-length">{_break}</div>
-      <button id="break-increment">
+      <button id="break-increment" onClick={increment}>
         <FontAwesomeIcon icon={faArrowUp} />
       </button>
     </div>
@@ -25,18 +33,25 @@ function Break({_break, setBreak}: BreakProps) {
 
 type SessionProps = {
   session: number;
-  setSession: (session: number) => void;
+  setSession: React.Dispatch<React.SetStateAction<number>>;
+  isActive: boolean;
 }
 
-function Session({session, setSession}: SessionProps) {
+function Session({session, setSession, isActive}: SessionProps) {
+  const increment = () => {
+    setSession(prev => prev + 1)
+  }
+  const decrement = () => {
+    setSession(prev => prev - 1)
+  }
   return (
     <div id="session">
       <label id="session-label" htmlFor="break">Break Length</label>
-      <button id="session-decrement">
+      <button id="session-decrement" onClick={decrement}>
         <FontAwesomeIcon icon={faArrowDown} />
       </button>
       <div id="session-length">{session}</div>
-      <button id="session-increment">
+      <button id="session-increment" onClick={increment}>
         <FontAwesomeIcon icon={faArrowUp} />
       </button>
     </div>
@@ -79,8 +94,8 @@ function App() {
   return (
     <>
       <div id="title">25 + 5 Clock</div>
-      <Break _break={_break} setBreak={setBreak}></Break>
-      <Session session={session} setSession={setSession}></Session>
+      <Break _break={_break} setBreak={setBreak} isActive={isActive}></Break>
+      <Session session={session} setSession={setSession} isActive={isActive}></Session>
       <Timer _break={_break} session={session} isActive={isActive} setIsActive={setIsActive}></Timer>
       <audio id="beep" src="https://raw.githubusercontent.com/freeCodeCamp/cdn/master/build/testable-projects-fcc/audio/BeepSound.wav"></audio>
     </>
