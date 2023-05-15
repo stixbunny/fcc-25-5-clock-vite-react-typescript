@@ -47,19 +47,19 @@ type TimerProps = {
   _break: number;
   session: number;
   isActive: boolean;
-  setIsActive: (isActive: boolean) => void;
+  setIsActive: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 function Timer({_break, session, isActive, setIsActive}: TimerProps) {
   const switchActive = () => {
-    //
+    setIsActive((prev) => !prev)
   }
 
   return (
     <div id="timer">
       <label id="timer-label" htmlFor="">Session</label>
       <div id="time-left" >25:00</div>
-      <button id="start_stop">
+      <button id="start_stop" onClick={switchActive}>
         {isActive
           ? <FontAwesomeIcon icon={faStop} />
           : <FontAwesomeIcon icon={faPlay} />}
