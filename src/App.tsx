@@ -20,6 +20,7 @@ function Break({_break, setBreak, isActive}: BreakProps) {
   return (
     <div id="break">
       <div id="break-label">Break Length</div>
+      <div className='control'>
       {isActive
         ? <><button id="break-decrement">
             <FontAwesomeIcon icon={faArrowDown} />
@@ -36,6 +37,7 @@ function Break({_break, setBreak, isActive}: BreakProps) {
             <FontAwesomeIcon icon={faArrowUp} />
           </button></>
       }
+      </div>
     </div>
   )
 }
@@ -56,6 +58,7 @@ function Session({session, setSession, isActive}: SessionProps) {
   return (
     <div id="session">
       <div id="session-label">Session Length</div>
+      <div className='control'>
       {isActive
         ? <><button id="session-decrement">
             <FontAwesomeIcon icon={faArrowDown} />
@@ -72,6 +75,7 @@ function Session({session, setSession, isActive}: SessionProps) {
             <FontAwesomeIcon icon={faArrowUp} />
           </button></>
       }
+      </div>
     </div>
   )
 }
@@ -164,14 +168,16 @@ function Timer({_break, setBreak, session, setSession, isActive, setIsActive}: T
           ? padTime(Math.floor(timer / 60)) + ":" + padTime(timer % 60)
           : padTime(Math.floor(breakTimer / 60)) + ":" + padTime(breakTimer % 60)}
       </div>
-      <button id="start_stop" onClick={switchActive}>
-        {isActive
-          ? <FontAwesomeIcon icon={faPause} />
-          : <FontAwesomeIcon icon={faPlay} />}
-      </button>
-      <button id="reset" onClick={reset}>
-        <FontAwesomeIcon icon={faArrowsRotate} />
-      </button>
+      <div className='control'>
+        <button id="start_stop" onClick={switchActive}>
+          {isActive
+            ? <FontAwesomeIcon icon={faPause} />
+            : <FontAwesomeIcon icon={faPlay} />}
+        </button>
+        <button id="reset" onClick={reset}>
+          <FontAwesomeIcon icon={faArrowsRotate} />
+        </button>
+      </div>
     </div>
   )
 }
@@ -187,6 +193,9 @@ function App() {
       <Break _break={_break} setBreak={setBreak} isActive={isActive}></Break>
       <Session session={session} setSession={setSession} isActive={isActive}></Session>
       <Timer _break={_break} setBreak={setBreak} session={session} setSession={setSession} isActive={isActive} setIsActive={setIsActive}></Timer>
+      <div id="me">
+        by <a href="https://github.com/stixbunny" target="_blank" rel="noreferrer">stixbunny</a>
+      </div>
     </>
   )
 }
