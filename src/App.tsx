@@ -125,7 +125,7 @@ function Timer({_break, setBreak, session, setSession, isActive, setIsActive}: T
     let interval: number | undefined = undefined;
     if (isActive && !onBreak) {
       interval = setInterval(() => {
-        if(timer == 0) {
+        if(timer <= 0) {
           sound.play();
           setBreakTimer(_break * 60);
           setOnBreak(true);
@@ -143,7 +143,7 @@ function Timer({_break, setBreak, session, setSession, isActive, setIsActive}: T
     let interval: number | undefined = undefined;
     if (isActive && onBreak) {
       interval = setInterval(() => {
-        if(breakTimer == 0) {
+        if(breakTimer <= 0) {
           sound.play();
           setTimer(session * 60);
           setOnBreak(false);
