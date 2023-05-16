@@ -46,7 +46,7 @@ function Session({session, setSession, isActive}: SessionProps) {
   }
   return (
     <div id="session">
-      <label id="session-label" htmlFor="break">Break Length</label>
+      <label id="session-label" htmlFor="break">Session Length</label>
       <button id="session-decrement" onClick={decrement}>
         <FontAwesomeIcon icon={faArrowDown} />
       </button>
@@ -69,6 +69,8 @@ type TimerProps = {
 
 function Timer({_break, setBreak, session, setSession, isActive, setIsActive}: TimerProps) {
   const [timer, setTimer] = useState(session * 60);
+  const [onBreak, setOnBreak] = useState(false);
+  const [breakTimer, setBreakTimer] = useState(0);
   
   const switchActive = () => {
     setIsActive((prev) => !prev);
@@ -78,6 +80,8 @@ function Timer({_break, setBreak, session, setSession, isActive, setIsActive}: T
     setBreak(5);
     setSession(25);
     setTimer(session * 60);
+    setBreakTimer(0);
+    setIsActive(false);
     const sound : HTMLAudioElement | null = document.getElementById("beep") as HTMLAudioElement;
     if (sound) {
       sound.pause();
@@ -90,22 +94,45 @@ function Timer({_break, setBreak, session, setSession, isActive, setIsActive}: T
   }
 
   useEffect(() => {
+    setTimer(session * 60);
+  }, [session])
+
+  useEffect(() => {
     let interval: number | undefined = undefined;
-    if (isActive) {
+    if (isActive && !onBreak) {
       interval = setInterval(() => {
         setTimer(prev => prev - 1);
+        setBreakTimer(prev => prev + 1);
+        if(breakTimer == _break * 60) setOnBreak(true)
       }, 1000);
     } else if (!isActive && timer !== 0) {
       clearInterval(interval);
     }
     return () => clearInterval(interval);
-  }, [isActive, timer]);
+  }, [isActive, timer, _break, breakTimer, onBreak]);
+
+  useEffect(() => {
+    let interval: number | undefined = undefined;
+    if (isActive && onBreak) {
+      interval = setInterval(() => {
+        setBreakTimer(prev => prev - 1);
+      }, 1000);
+      if(breakTimer == 0) {
+        setOnBreak(false);
+      } 
+    } else if (!isActive && breakTimer !== 0) {
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [onBreak, breakTimer, isActive])
 
   return (
     <div id="timer">
-      <label id="timer-label" htmlFor="">Session</label>
+      <label id="timer-label" htmlFor="">{!onBreak ? "Session" : "Break"}</label>
       <div id="time-left" >
-        {padTime(Math.floor(timer / 60)) + ":" + padTime(timer % 60)}
+        {!onBreak
+          ? padTime(Math.floor(timer / 60)) + ":" + padTime(timer % 60)
+          : padTime(Math.floor(breakTimer / 60)) + ":" + padTime(breakTimer % 60)}
       </div>
       <button id="start_stop" onClick={switchActive}>
         {isActive
