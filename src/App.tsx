@@ -19,14 +19,23 @@ function Break({_break, setBreak, isActive}: BreakProps) {
 
   return (
     <div id="break">
-      <label id="break-label" htmlFor="break">Break Length</label>
-      <button id="break-decrement" onClick={decrement}>
-        <FontAwesomeIcon icon={faArrowDown} />
-      </button>
-      <div id="break-length">{_break}</div>
-      <button id="break-increment" onClick={increment}>
-        <FontAwesomeIcon icon={faArrowUp} />
-      </button>
+      <div id="break-label">Break Length</div>
+      {isActive
+        ? <><button id="break-decrement">
+            <FontAwesomeIcon icon={faArrowDown} />
+          </button>
+          <div id="break-length">{_break}</div>
+          <button id="break-increment">
+            <FontAwesomeIcon icon={faArrowUp} />
+          </button></>
+        : <><button id="break-decrement" onClick={decrement}>
+            <FontAwesomeIcon icon={faArrowDown} />
+          </button>
+          <div id="break-length">{_break}</div>
+          <button id="break-increment" onClick={increment}>
+            <FontAwesomeIcon icon={faArrowUp} />
+          </button></>
+      }
     </div>
   )
 }
@@ -46,14 +55,23 @@ function Session({session, setSession, isActive}: SessionProps) {
   }
   return (
     <div id="session">
-      <label id="session-label" htmlFor="break">Session Length</label>
-      <button id="session-decrement" onClick={decrement}>
-        <FontAwesomeIcon icon={faArrowDown} />
-      </button>
-      <div id="session-length">{session}</div>
-      <button id="session-increment" onClick={increment}>
-        <FontAwesomeIcon icon={faArrowUp} />
-      </button>
+      <div id="session-label">Session Length</div>
+      {isActive
+        ? <><button id="session-decrement">
+            <FontAwesomeIcon icon={faArrowDown} />
+          </button>
+          <div id="session-length">{session}</div>
+          <button id="session-increment">
+            <FontAwesomeIcon icon={faArrowUp} />
+          </button></>
+        : <><button id="session-decrement" onClick={decrement}>
+            <FontAwesomeIcon icon={faArrowDown} />
+          </button>
+          <div id="session-length">{session}</div>
+          <button id="session-increment" onClick={increment}>
+            <FontAwesomeIcon icon={faArrowUp} />
+          </button></>
+      }
     </div>
   )
 }
@@ -71,64 +89,76 @@ function Timer({_break, setBreak, session, setSession, isActive, setIsActive}: T
   const [timer, setTimer] = useState(session * 60);
   const [onBreak, setOnBreak] = useState(false);
   const [breakTimer, setBreakTimer] = useState(0);
-  
+  const sound : HTMLAudioElement | null = document.getElementById("beep") as HTMLAudioElement; 
+
+  //Switch play / stop button
   const switchActive = () => {
     setIsActive((prev) => !prev);
   }
 
+  //Reset button press
   const reset = () => {
     setBreak(5);
     setSession(25);
     setTimer(session * 60);
-    setBreakTimer(0);
+    setBreakTimer(_break * 60);
     setIsActive(false);
-    const sound : HTMLAudioElement | null = document.getElementById("beep") as HTMLAudioElement;
+    setOnBreak(false);
     if (sound) {
       sound.pause();
       sound.currentTime = 0;
     }
   }
 
+  //Format into 00:00
   const padTime = (time: number) => {
     return (new Array(3).join("0") + time.toString()).slice(-2);
   }
 
+  //Update timer alongside session length
   useEffect(() => {
     setTimer(session * 60);
   }, [session])
 
+  //Session countdown
   useEffect(() => {
     let interval: number | undefined = undefined;
     if (isActive && !onBreak) {
       interval = setInterval(() => {
-        setTimer(prev => prev - 1);
-        setBreakTimer(prev => prev + 1);
-        if(breakTimer == _break * 60) setOnBreak(true)
+        if(timer == 0) {
+          sound.play();
+          setBreakTimer(_break * 60);
+          setOnBreak(true);
+        }
+        else setTimer(prev => prev - 1);
       }, 1000);
     } else if (!isActive && timer !== 0) {
       clearInterval(interval);
     }
     return () => clearInterval(interval);
-  }, [isActive, timer, _break, breakTimer, onBreak]);
+  }, [isActive, timer, _break, breakTimer, onBreak, sound]);
 
+  //Break countdown
   useEffect(() => {
     let interval: number | undefined = undefined;
     if (isActive && onBreak) {
       interval = setInterval(() => {
-        setBreakTimer(prev => prev - 1);
+        if(breakTimer == 0) {
+          sound.play();
+          setTimer(session * 60);
+          setOnBreak(false);
+        }
+        else setBreakTimer(prev => prev - 1);
       }, 1000);
-      if(breakTimer == 0) {
-        setOnBreak(false);
-      } 
     } else if (!isActive && breakTimer !== 0) {
       clearInterval(interval);
     }
     return () => clearInterval(interval);
-  }, [onBreak, breakTimer, isActive])
+  }, [onBreak, breakTimer, isActive, session, sound])
 
   return (
     <div id="timer">
-      <label id="timer-label" htmlFor="">{!onBreak ? "Session" : "Break"}</label>
+      <div id="timer-label">{!onBreak ? "Session" : "Break"}</div>
       <div id="time-left" >
         {!onBreak
           ? padTime(Math.floor(timer / 60)) + ":" + padTime(timer % 60)
