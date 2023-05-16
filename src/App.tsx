@@ -78,6 +78,11 @@ function Timer({_break, setBreak, session, setSession, isActive, setIsActive}: T
     setBreak(5);
     setSession(25);
     setTimer(session * 60);
+    const sound : HTMLAudioElement | null = document.getElementById("beep") as HTMLAudioElement;
+    if (sound) {
+      sound.pause();
+      sound.currentTime = 0;
+    }
   }
 
   const padTime = (time: number) => {
