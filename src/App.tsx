@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowDown, faArrowUp, faPlay, faStop, faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
+import { faArrowDown, faArrowUp, faPlay, faArrowsRotate, faPause } from '@fortawesome/free-solid-svg-icons';
 
 type BreakProps = {
   _break: number;
@@ -11,10 +11,10 @@ type BreakProps = {
 
 function Break({_break, setBreak, isActive}: BreakProps) {
   const increment = () => {
-    setBreak(prev => prev + 1)
+    if(_break < 60) setBreak(prev => prev + 1);
   }
   const decrement = () => {
-    setBreak(prev => prev - 1)
+    if(_break > 1) setBreak(prev => prev - 1);
   }
 
   return (
@@ -39,10 +39,10 @@ type SessionProps = {
 
 function Session({session, setSession, isActive}: SessionProps) {
   const increment = () => {
-    setSession(prev => prev + 1)
+    if(session < 60) setSession(prev => prev + 1)
   }
   const decrement = () => {
-    setSession(prev => prev - 1)
+    if(session > 1) setSession(prev => prev - 1)
   }
   return (
     <div id="session">
@@ -60,26 +60,54 @@ function Session({session, setSession, isActive}: SessionProps) {
 
 type TimerProps = {
   _break: number;
+  setBreak: React.Dispatch<React.SetStateAction<number>>;
   session: number;
+  setSession: React.Dispatch<React.SetStateAction<number>>;
   isActive: boolean;
   setIsActive: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-function Timer({_break, session, isActive, setIsActive}: TimerProps) {
+function Timer({_break, setBreak, session, setSession, isActive, setIsActive}: TimerProps) {
+  const [timer, setTimer] = useState(session * 60);
+  
   const switchActive = () => {
-    setIsActive((prev) => !prev)
+    setIsActive((prev) => !prev);
   }
+
+  const reset = () => {
+    setBreak(5);
+    setSession(25);
+    setTimer(session * 60);
+  }
+
+  const padTime = (time: number) => {
+    return (new Array(3).join("0") + time.toString()).slice(-2);
+  }
+
+  useEffect(() => {
+    let interval: number | undefined = undefined;
+    if (isActive) {
+      interval = setInterval(() => {
+        setTimer(prev => prev - 1);
+      }, 1000);
+    } else if (!isActive && timer !== 0) {
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [isActive, timer]);
 
   return (
     <div id="timer">
       <label id="timer-label" htmlFor="">Session</label>
-      <div id="time-left" >25:00</div>
+      <div id="time-left" >
+        {padTime(Math.floor(timer / 60)) + ":" + padTime(timer % 60)}
+      </div>
       <button id="start_stop" onClick={switchActive}>
         {isActive
-          ? <FontAwesomeIcon icon={faStop} />
+          ? <FontAwesomeIcon icon={faPause} />
           : <FontAwesomeIcon icon={faPlay} />}
       </button>
-      <button id="reset">
+      <button id="reset" onClick={reset}>
         <FontAwesomeIcon icon={faArrowsRotate} />
       </button>
     </div>
@@ -96,8 +124,7 @@ function App() {
       <div id="title">25 + 5 Clock</div>
       <Break _break={_break} setBreak={setBreak} isActive={isActive}></Break>
       <Session session={session} setSession={setSession} isActive={isActive}></Session>
-      <Timer _break={_break} session={session} isActive={isActive} setIsActive={setIsActive}></Timer>
-      <audio id="beep" src="https://raw.githubusercontent.com/freeCodeCamp/cdn/master/build/testable-projects-fcc/audio/BeepSound.wav"></audio>
+      <Timer _break={_break} setBreak={setBreak} session={session} setSession={setSession} isActive={isActive} setIsActive={setIsActive}></Timer>
     </>
   )
 }
